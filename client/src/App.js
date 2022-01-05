@@ -1,46 +1,45 @@
-import logo from "./logo.svg";
 import "./App.css";
 
 import { useEffect, useState } from "react";
+import Word from "./components/Word";
 
 function App() {
-  const [data, setData] = useState(null);
+  const [gameId, setGameId] = useState(null);
+  const [gameData, setGameData] = useState([]);
+  const [isGameStarted, setIsGameStarted] = useState(false);
 
   useEffect(() => {
     fetch("/api")
       .then((res) => res.json())
-      .then((data) => setData(data.message));
+      .then((data) => setGameId(data.id));
   }, []);
 
   const buttonClickHandler = () => {
     fetch("/new-game", {
       method: "POST",
-      body: JSON.stringify({ id: data }),
+      body: JSON.stringify({ id: gameId }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     })
       .then((response) => response.json())
-      .then((json) => console.log(json));
+      .then((json) => setGameData(json));
+
+    setIsGameStarted(true);
   };
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {data}
-        </a>
-        <button onClick={buttonClickHandler}></button>
-      </header>
+      <h1>Hangman Game</h1>
+
+      {isGameStarted && (
+        <Word
+          word={gameData.randomWord}
+          wordLength={gameData.randomWordLength}
+          id={gameId}
+        />
+      )}
+      {!isGameStarted && <button onClick={buttonClickHandler}>New Game</button>}
     </div>
   );
 }

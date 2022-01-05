@@ -9,12 +9,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const WORDS = ["Basketball", "Football", "Tennis", "Skiing"];
+const WORDS = ["basketball", "football", "tennis", "skiing"];
 const gameInfo = [];
 
 app.get("/api", (req, res) => {
   const id = uuidv4();
-  res.json({ message: id });
+  res.json({ id: id });
 });
 
 app.post("/new-game", (req, res) => {
@@ -26,8 +26,36 @@ app.post("/new-game", (req, res) => {
     id: id,
     randomWord: randomWord,
     remainingTries: 10,
+    correctLetters: [],
   });
   console.log(gameInfo);
+  res.send({
+    randomWordLength: randomWord.length,
+    randomWord: randomWord,
+    remainingTries: 10,
+    id: id,
+  });
+});
+
+app.post("/letter", (req, res) => {
+  console.log(req.body.key, req.body.id);
+
+  let word = gameInfo.find((x) => x.id === req.body.id);
+  let index = gameInfo.findIndex((x) => x.id == req.body.id);
+
+  if (word.correctLetters.includes(req.body.key)) {
+    console.log("letter already used");
+  } else if (word.randomWord.includes(req.body.key)) {
+    word.correctLetters.push(req.body.key);
+    word.remainingTries--;
+  } else {
+    console.log("wrong letter");
+    word.remainingTries--;
+  }
+  gameInfo[index] = word;
+
+  console.log(word, index);
+  res.send(gameInfo[index]);
 });
 
 app.listen(PORT, () => {
