@@ -15,6 +15,7 @@ const Popup = (props) => {
         ) : null}
 
         <button
+          className="myButton"
           onClick={() => {
             window.location.reload();
           }}

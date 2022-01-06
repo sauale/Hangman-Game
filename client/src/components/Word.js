@@ -1,13 +1,18 @@
 import "../App.css";
 import { useEffect, useState } from "react";
 import Popup from "./Popup";
-import { NIL } from "uuid";
+
 const Word = (props) => {
   const [updatedGameData, setUpdatedGameData] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [flag, setFlag] = useState(true);
+  const [isKeyValid, setIsKeyValid] = useState(true);
   const handleKeyDown = (event) => {
+    setIsKeyValid(true);
     if (event.keyCode >= 65 && event.keyCode <= 90) {
       console.log("key was pressed - ", event.key);
 
+      setIsKeyValid(true);
       let status = updatedGameData ? updatedGameData.status : "";
       console.log("status:", status);
       console.log(updatedGameData);
@@ -25,16 +30,28 @@ const Word = (props) => {
       }
     } else {
       console.log("Invalid key");
+      setIsKeyValid(false);
     }
   };
 
+  if (updatedGameData && updatedGameData.status !== "" && flag) {
+    setIsPlaying(false);
+    setFlag(false);
+  }
+  if (updatedGameData && updatedGameData.showNotification) {
+  }
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
+    if (isPlaying) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    if (!isPlaying) {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isPlaying]);
 
   let items = [];
   console.log(updatedGameData);
@@ -73,6 +90,27 @@ const Word = (props) => {
           hiddenWord={updatedGameData.randomWord}
         />
       ) : null}
+
+      <div className="wrong-letters">
+        {updatedGameData && (
+          <h3>wrong letters: {updatedGameData.wrongLetters.join(" ")}</h3>
+        )}
+      </div>
+      <div>
+        {updatedGameData && updatedGameData.showNotification ? (
+          <h2 className="myelement" style={{ color: "red" }}>
+            Letter already entered
+          </h2>
+        ) : null}
+      </div>
+
+      <div>
+        {!isKeyValid ? (
+          <h2 className="myelement" style={{ color: "red" }}>
+            Invalid key
+          </h2>
+        ) : null}
+      </div>
     </div>
   );
 };

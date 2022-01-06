@@ -41,7 +41,11 @@ function App() {
           id={gameId}
         />
       )}
-      {!isGameStarted && <button onClick={buttonClickHandler}>New Game</button>}
+      {!isGameStarted && (
+        <button className="myButton" onClick={buttonClickHandler}>
+          New Game
+        </button>
+      )}
     </div>
   );
 }

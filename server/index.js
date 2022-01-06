@@ -9,7 +9,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const WORDS = ["basketball", "football", "tennis", "skiing"];
+const WORDS = [
+  "basketball",
+  "football",
+  "tennis",
+  "skiing",
+  "cricket",
+  "baseball",
+  "hockey",
+  "boxing",
+];
 const gameInfo = [];
 
 app.get("/api", (req, res) => {
@@ -29,6 +38,7 @@ app.post("/new-game", (req, res) => {
     correctLetters: [],
     wrongLetters: [],
     status: "",
+    showNotification: false,
   });
   console.log(gameInfo);
   res.send({
@@ -38,6 +48,7 @@ app.post("/new-game", (req, res) => {
     wrongLetters: [],
     id: id,
     status: "",
+    showNotification: false,
   });
 });
 
@@ -47,11 +58,17 @@ app.post("/letter", (req, res) => {
   let word = gameInfo.find((x) => x.id === req.body.id);
   let index = gameInfo.findIndex((x) => x.id == req.body.id);
 
-  if (word.correctLetters.includes(req.body.key)) {
+  if (
+    word.correctLetters.includes(req.body.key) ||
+    word.wrongLetters.includes(req.body.key)
+  ) {
     console.log("letter already used");
+    word.showNotification = true;
   } else if (word.randomWord.includes(req.body.key)) {
     word.correctLetters.push(req.body.key);
+    word.showNotification = false;
   } else {
+    word.showNotification = false;
     console.log("wrong letter");
     word.wrongLetters.push(req.body.key);
     word.remainingTries--;
