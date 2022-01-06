@@ -1,6 +1,8 @@
 import "../App.css";
 import { useEffect, useState } from "react";
 import Popup from "./Popup";
+import WrongLetters from "./WrongLetters";
+import Notification from "./Notification";
 
 const Word = (props) => {
   const [updatedGameData, setUpdatedGameData] = useState(null);
@@ -10,12 +12,12 @@ const Word = (props) => {
   const handleKeyDown = (event) => {
     setIsKeyValid(true);
     if (event.keyCode >= 65 && event.keyCode <= 90) {
-      console.log("key was pressed - ", event.key);
+      // console.log("key was pressed - ", event.key);
 
       setIsKeyValid(true);
       let status = updatedGameData ? updatedGameData.status : "";
-      console.log("status:", status);
-      console.log(updatedGameData);
+      // console.log("status:", status);
+      // console.log(updatedGameData);
 
       if (status === "") {
         fetch("/letter", {
@@ -29,7 +31,7 @@ const Word = (props) => {
           .then((json) => setUpdatedGameData(json));
       }
     } else {
-      console.log("Invalid key");
+      //  console.log("Invalid key");
       setIsKeyValid(false);
     }
   };
@@ -52,14 +54,6 @@ const Word = (props) => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isPlaying]);
-
-  let items = [];
-  console.log(updatedGameData);
-  console.log(props.word);
-  //   for (let i = 0; i < props.wordLength; i++) {
-  //     items.push(<span className="letter">1</span>);
-  //   }
-  //   return <div className="word">{items}</div>;
 
   return (
     <div>
@@ -93,24 +87,16 @@ const Word = (props) => {
 
       <div className="wrong-letters">
         {updatedGameData && (
-          <h3>wrong letters: {updatedGameData.wrongLetters.join(" ")}</h3>
+          <WrongLetters WrongLetters={updatedGameData.wrongLetters} />
         )}
       </div>
       <div>
         {updatedGameData && updatedGameData.showNotification ? (
-          <h2 className="myelement" style={{ color: "red" }}>
-            Letter already entered
-          </h2>
+          <Notification invalidKey={false} />
         ) : null}
       </div>
 
-      <div>
-        {!isKeyValid ? (
-          <h2 className="myelement" style={{ color: "red" }}>
-            Invalid key
-          </h2>
-        ) : null}
-      </div>
+      <div>{!isKeyValid ? <Notification invalidKey={true} /> : null}</div>
     </div>
   );
 };
