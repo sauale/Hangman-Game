@@ -32,6 +32,8 @@ function App() {
     <div className="App">
       <h1>Hangman Game</h1>
 
+      <h3>Find hidden word</h3>
+      <h3>Press a-z keys to guess</h3>
       {isGameStarted && (
         <Word
           word={gameData.randomWord}

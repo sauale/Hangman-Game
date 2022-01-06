@@ -27,13 +27,17 @@ app.post("/new-game", (req, res) => {
     randomWord: randomWord,
     remainingTries: 10,
     correctLetters: [],
+    wrongLetters: [],
+    status: "",
   });
   console.log(gameInfo);
   res.send({
     randomWordLength: randomWord.length,
     randomWord: randomWord,
     remainingTries: 10,
+    wrongLetters: [],
     id: id,
+    status: "",
   });
 });
 
@@ -47,11 +51,23 @@ app.post("/letter", (req, res) => {
     console.log("letter already used");
   } else if (word.randomWord.includes(req.body.key)) {
     word.correctLetters.push(req.body.key);
-    word.remainingTries--;
   } else {
     console.log("wrong letter");
+    word.wrongLetters.push(req.body.key);
     word.remainingTries--;
   }
+
+  word.status = "Won";
+  word.randomWord.split("").forEach((letter) => {
+    if (!word.correctLetters.includes(letter)) {
+      word.status = "";
+    }
+  });
+
+  if (word.remainingTries <= 0) {
+    word.status = "Lost";
+  }
+
   gameInfo[index] = word;
 
   console.log(word, index);

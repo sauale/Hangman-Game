@@ -1,20 +1,28 @@
 import "../App.css";
 import { useEffect, useState } from "react";
+import Popup from "./Popup";
+import { NIL } from "uuid";
 const Word = (props) => {
-  const [updatedGameData, setUpdatedGameData] = useState();
+  const [updatedGameData, setUpdatedGameData] = useState(null);
   const handleKeyDown = (event) => {
     if (event.keyCode >= 65 && event.keyCode <= 90) {
       console.log("key was pressed - ", event.key);
 
-      fetch("/letter", {
-        method: "POST",
-        body: JSON.stringify({ key: event.key, id: props.id }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      })
-        .then((response) => response.json())
-        .then((json) => setUpdatedGameData(json));
+      let status = updatedGameData ? updatedGameData.status : "";
+      console.log("status:", status);
+      console.log(updatedGameData);
+
+      if (status === "") {
+        fetch("/letter", {
+          method: "POST",
+          body: JSON.stringify({ key: event.key.toLowerCase(), id: props.id }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        })
+          .then((response) => response.json())
+          .then((json) => setUpdatedGameData(json));
+      }
     } else {
       console.log("Invalid key");
     }
@@ -37,18 +45,34 @@ const Word = (props) => {
   //   return <div className="word">{items}</div>;
 
   return (
-    <div className="word">
-      {props.word &&
-        props.word.split("").map((letter, i) => {
-          return (
-            <span className="letter" key={i}>
-              {updatedGameData &&
-              updatedGameData.correctLetters.includes(letter)
-                ? letter
-                : ""}
-            </span>
-          );
-        })}
+    <div>
+      {updatedGameData && updatedGameData.status === "" ? (
+        <h3>
+          Remaining tries{" "}
+          {updatedGameData ? updatedGameData.remainingTries : 10}
+        </h3>
+      ) : null}
+
+      <div className="word">
+        {props.word &&
+          props.word.split("").map((letter, i) => {
+            return (
+              <span className="letter" key={i}>
+                {updatedGameData &&
+                updatedGameData.correctLetters.includes(letter)
+                  ? letter
+                  : ""}
+              </span>
+            );
+          })}
+      </div>
+
+      {updatedGameData && updatedGameData.status !== "" ? (
+        <Popup
+          status={updatedGameData.status}
+          hiddenWord={updatedGameData.randomWord}
+        />
+      ) : null}
     </div>
   );
 };
